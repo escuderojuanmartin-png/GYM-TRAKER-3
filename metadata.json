@@ -1,0 +1,6 @@
+{
+  "name": "Gym Tracker",
+  "description": "Aplicación web para registrar entrenamientos de fuerza, realizar un seguimiento de la progresión de cargas y mantener una planificación flexible basada en grupos musculares.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

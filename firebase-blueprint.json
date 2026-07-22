@@ -1,0 +1,112 @@
+{
+  "entities": {
+    "MuscleGroup": {
+      "title": "MuscleGroup",
+      "description": "A muscle group definition",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 100 },
+        "color": { "type": "string", "maxLength": 200 },
+        "textClass": { "type": "string", "maxLength": 100 },
+        "order": { "type": "number" },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "initialWeight": { "type": "number" },
+        "targetSets": { "type": "number" },
+        "targetReps": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 1000 }
+      },
+      "required": ["name", "color", "textClass", "order", "active", "createdAt", "userId"]
+    },
+    "Exercise": {
+      "title": "Exercise",
+      "description": "An exercise definition",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 100 },
+        "muscleGroupId": { "type": "string", "maxLength": 128 },
+        "order": { "type": "number" },
+        "initialWeight": { "type": "number" },
+        "targetSets": { "type": "number" },
+        "targetReps": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "active": { "type": "boolean" },
+        "userId": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["name", "muscleGroupId", "order", "initialWeight", "targetSets", "targetReps", "notes", "active", "userId"]
+    },
+    "Routine": {
+      "title": "Routine",
+      "description": "A routine definition",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "exerciseIds": { "type": "array" },
+        "muscleGroupIds": { "type": "array" },
+        "order": { "type": "number" },
+        "initialWeight": { "type": "number" },
+        "targetSets": { "type": "number" },
+        "targetReps": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "active": { "type": "boolean" }
+      },
+      "required": ["userId", "name", "exerciseIds", "muscleGroupIds"]
+    },
+    "Workout": {
+      "title": "Workout",
+      "description": "A workout session",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "primaryMuscleGroupId": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 50 },
+        "startTime": { "type": "string", "maxLength": 50 },
+        "endTime": { "type": "string", "maxLength": 50 },
+        "duration": { "type": "number" },
+        "status": { "type": "string", "maxLength": 20 },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "exercises": { "type": "array" },
+        "muscleGroupIds": { "type": "array" },
+        "order": { "type": "number" },
+        "initialWeight": { "type": "number" },
+        "targetSets": { "type": "number" },
+        "targetReps": { "type": "number" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["userId", "date", "status", "exercises", "muscleGroupIds"]
+    },
+    "UserGoal": {
+      "title": "UserGoal",
+      "description": "User weekly goals",
+      "type": "object",
+      "properties": {
+        "weeklyWorkoutCount": { "type": "number" }
+      },
+      "required": ["weeklyWorkoutCount"]
+    }
+  },
+  "firestore": {
+    "/muscle_groups/{groupId}": {
+      "schema": { "$ref": "#/entities/MuscleGroup" },
+      "description": "Muscle groups"
+    },
+    "/exercises/{exerciseId}": {
+      "schema": { "$ref": "#/entities/Exercise" },
+      "description": "Exercises"
+    },
+    "/routines/{routineId}": {
+      "schema": { "$ref": "#/entities/Routine" },
+      "description": "Routines"
+    },
+    "/workouts/{workoutId}": {
+      "schema": { "$ref": "#/entities/Workout" },
+      "description": "Workouts"
+    },
+    "/user_goals/{userId}": {
+      "schema": { "$ref": "#/entities/UserGoal" },
+      "description": "User goals"
+    }
+  }
+}
