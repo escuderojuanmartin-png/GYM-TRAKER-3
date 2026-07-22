@@ -29,7 +29,7 @@ export default function Navbar({
             <Dumbbell className="h-5 w-5 stroke-[2.5]" />
           </div>
           <div>
-            <h1 className="text-lg font-black tracking-tighter text-white uppercase sm:text-xl">
+            <h1 className="hidden sm:block text-lg font-black tracking-tighter text-white uppercase sm:text-xl">
               GYM_TRACKER //
             </h1>
             <p className="hidden text-xxs font-bold text-neon-lime tracking-wider uppercase sm:block">
@@ -106,10 +106,11 @@ export default function Navbar({
           ) : (
             <button
               onClick={onLogin}
-              className="flex items-center gap-2 bg-white px-4 py-2 text-xs font-black text-black hover:bg-neutral-200 active:scale-[0.98] transition-all cursor-pointer uppercase tracking-wider rounded-sm"
+              className="flex items-center gap-2 bg-white px-3 py-2 sm:px-4 text-xs font-black text-black hover:bg-neutral-200 active:scale-[0.98] transition-all cursor-pointer uppercase tracking-wider rounded-sm"
             >
               <LogIn className="h-4 w-4 stroke-[2.5]" />
-              <span>Inicia con Google</span>
+              <span className="hidden sm:inline">Inicia con Google</span>
+              <span className="sm:hidden">Entrar</span>
             </button>
           )}
         </div>

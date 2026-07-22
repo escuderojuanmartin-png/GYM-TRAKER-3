@@ -115,7 +115,7 @@ export default function RoutineManager({
             </h4>
             <button
               onClick={() => setIsEditing(false)}
-              className="rounded-none border border-gym-border p-1 text-slate-400 hover:bg-gym-card-light hover:text-white cursor-pointer"
+              className="rounded-none border border-gym-border p-2 text-slate-400 hover:bg-gym-card-light hover:text-white cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
@@ -245,17 +245,17 @@ export default function RoutineManager({
                     <div className="flex items-center gap-1 opacity-65 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => handleOpenEdit(routine)}
-                        className="p-1 rounded-none text-slate-400 hover:bg-gym-card-light hover:text-neon-lime border border-transparent hover:border-gym-border transition-colors cursor-pointer"
+                        className="p-2 sm:p-1 rounded-none text-slate-400 hover:bg-gym-card-light hover:text-neon-lime border border-transparent hover:border-gym-border transition-colors cursor-pointer"
                         title="Editar rutina"
                       >
-                        <Edit2 className="h-3.5 w-3.5" />
+                        <Edit2 className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => onDeleteRoutine(routine.id)}
-                        className="p-1 rounded-none text-slate-400 hover:bg-red-950/20 hover:text-red-400 border border-transparent hover:border-red-900/40 transition-colors cursor-pointer"
+                        className="p-2 sm:p-1 rounded-none text-slate-400 hover:bg-red-950/20 hover:text-red-400 border border-transparent hover:border-red-900/40 transition-colors cursor-pointer"
                         title="Eliminar rutina"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </div>

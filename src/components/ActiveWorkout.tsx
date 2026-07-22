@@ -377,27 +377,27 @@ export default function ActiveWorkout({
                   </div>
                 </div>
 
-                {/* Sets Header */}
-                <div className="px-5 pt-4 pb-1">
-                  <div className="grid grid-cols-12 gap-3 text-center text-[10px] font-black uppercase tracking-widest text-neon-lime">
-                    <div className="col-span-2 text-left">SERIE</div>
-                    <div className="col-span-4">CARGA (KG)</div>
-                    <div className="col-span-4">REPETICIONES</div>
-                    <div className="col-span-2">LOGRADA</div>
+                  {/* Sets Header */}
+                  <div className="px-2 sm:px-5 pt-4 pb-1">
+                    <div className="grid grid-cols-[2rem_1fr_1fr_3rem] sm:grid-cols-[3rem_1fr_1fr_4rem] gap-2 sm:gap-3 text-center text-[10px] font-black uppercase tracking-widest text-neon-lime">
+                      <div className="text-left flex items-center justify-center">#</div>
+                      <div>CARGA (KG)</div>
+                      <div>REPS</div>
+                      <div>OK</div>
+                    </div>
                   </div>
-                </div>
 
                 {/* Sets List */}
                 <div className="px-5 pb-4 space-y-2">
                   {exEntry.sets.map((set, setIdx) => (
                     <div 
                       key={set.id} 
-                      className={`grid grid-cols-12 gap-3 items-center text-center py-1.5 px-2 rounded-none transition-all ${
+                      className={`grid grid-cols-[2rem_1fr_1fr_3rem] sm:grid-cols-[3rem_1fr_1fr_4rem] gap-2 sm:gap-3 items-center text-center py-1.5 px-2 rounded-none transition-all ${
                         set.completed ? "bg-emerald-950/20 border border-emerald-800" : "border border-transparent"
                       }`}
                     >
                       {/* Set index */}
-                      <div className="col-span-2 text-left flex items-center gap-1">
+                      <div className="text-left flex items-center gap-1">
                         <button
                           onClick={() => handleRemoveSet(exEntry.exerciseId, set.id)}
                           className="text-slate-500 hover:text-red-400 hover:bg-red-950/20 p-1 rounded-none transition-colors"
@@ -410,34 +410,36 @@ export default function ActiveWorkout({
                       </div>
 
                       {/* Weight input */}
-                      <div className="col-span-4">
+                      <div>
                         <input
                           type="number"
+                          inputMode="decimal"
                           value={set.weight || ""}
                           onChange={(e) => handleUpdateSet(exEntry.exerciseId, set.id, "weight", parseFloat(e.target.value) || 0)}
                           placeholder="0"
                           disabled={set.completed}
-                          className="w-full text-center rounded-none border border-gym-border-light bg-gym-dark py-1 text-xs font-black text-white focus:border-neon-lime focus:bg-gym-card-light focus:outline-none disabled:opacity-50"
+                          className="w-full text-center rounded-none border border-gym-border-light bg-gym-dark py-2 sm:py-3 text-sm font-black text-white focus:border-neon-lime focus:bg-gym-card-light focus:outline-none disabled:opacity-50"
                         />
                       </div>
 
                       {/* Reps input */}
-                      <div className="col-span-4">
+                      <div>
                         <input
                           type="number"
+                          inputMode="numeric"
                           value={set.reps || ""}
                           onChange={(e) => handleUpdateSet(exEntry.exerciseId, set.id, "reps", parseInt(e.target.value, 10) || 0)}
                           placeholder="0"
                           disabled={set.completed}
-                          className="w-full text-center rounded-none border border-gym-border-light bg-gym-dark py-1 text-xs font-black text-white focus:border-neon-lime focus:bg-gym-card-light focus:outline-none disabled:opacity-50"
+                          className="w-full text-center rounded-none border border-gym-border-light bg-gym-dark py-2 sm:py-3 text-sm font-black text-white focus:border-neon-lime focus:bg-gym-card-light focus:outline-none disabled:opacity-50"
                         />
                       </div>
 
                       {/* Tick off checkbox */}
-                      <div className="col-span-2 flex justify-center">
+                      <div className="flex justify-center">
                         <button
                           onClick={() => handleToggleSetCompleted(exEntry.exerciseId, set.id)}
-                          className={`flex h-6 w-6 items-center justify-center rounded-none border transition-all cursor-pointer ${
+                          className={`flex h-8 w-8 items-center justify-center rounded-none border transition-all cursor-pointer ${
                             set.completed 
                               ? "bg-neon-lime border-neon-lime text-black shadow-lg" 
                               : "border-gym-border-light hover:border-neon-lime bg-gym-dark text-transparent"
