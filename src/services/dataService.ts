@@ -171,6 +171,26 @@ export class DataService {
     }
   }
 
+  async updateExercise(id: string, name: string): Promise<void> {
+    if (!this.userId) {
+      const local = localStorage.getItem(KEY_CUSTOM_EXERCISES);
+      if (local) {
+        const custom: Exercise[] = JSON.parse(local);
+        const updated = custom.map(ex => ex.id === id ? { ...ex, name } : ex);
+        localStorage.setItem(KEY_CUSTOM_EXERCISES, JSON.stringify(updated));
+      }
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "exercises", id), {
+        name
+      });
+    } catch (e) {
+      console.error("Error updating exercise in Firestore:", e);
+    }
+  }
+
   // --- ROUTINES ---
   async getRoutines(): Promise<Routine[]> {
     if (!this.userId) {

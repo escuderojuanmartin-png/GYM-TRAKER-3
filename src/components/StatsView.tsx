@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { 
   ResponsiveContainer, 
   LineChart, 
@@ -33,35 +33,70 @@ export default function StatsView({
 }: StatsViewProps) {
   const [selectedExerciseId, setSelectedExerciseId] = useState<string>("");
 
-  // Default select first exercise that has some logged history if possible
-  useMemo(() => {
-    if (!selectedExerciseId && exercises.length > 0) {
-      // Find an exercise that actually has history
-      const withHistory = exercises.find(ex => 
-        workouts.some(w => w.exercises.some(we => we.exerciseId === ex.id))
-      );
-      setSelectedExerciseId(withHistory?.id || exercises[0].id);
+  // Exercise selection dropdown items (only exercises with at least one logged completion AND showed evolution)
+  const exercisesWithHistory = useMemo(() => {
+    return exercises.map(ex => {
+      // Find all workouts that contain this exercise, sorted chronologically
+      const relevantWorkouts = workouts
+        .filter(w => w.exercises.some(e => e.exerciseId === ex.id))
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        
+      let hasEvolution = false;
+      let previousMaxWeight = 0;
+      let previousMaxReps = 0;
+      
+      relevantWorkouts.forEach((w, idx) => {
+        const exData = w.exercises.find(e => e.exerciseId === ex.id);
+        if (!exData) return;
+        
+        const completedSets = exData.sets.filter(s => s.completed);
+        if (completedSets.length === 0) return;
+        
+        const currentMaxWeight = Math.max(...completedSets.map(s => s.weight));
+        const currentMaxReps = Math.max(...completedSets.map(s => s.reps));
+        
+        if (idx > 0) {
+          // Check if there's an evolution compared to ANY previous session's maximums
+          if (currentMaxWeight > previousMaxWeight || currentMaxReps > previousMaxReps) {
+            hasEvolution = true;
+          }
+        }
+        
+        // Update previous maximums
+        if (currentMaxWeight > previousMaxWeight) previousMaxWeight = currentMaxWeight;
+        if (currentMaxReps > previousMaxReps) previousMaxReps = currentMaxReps;
+      });
+
+      const history = dataService.getExerciseHistory(workouts, ex.id);
+      
+      return {
+        ...ex,
+        hasHistory: history.history.length > 0,
+        hasEvolution,
+        lastWeight: history.lastWeight,
+        maxWeight: history.maxWeight
+      };
+    })
+    .filter(ex => ex.hasEvolution) // Only keep exercises that showed progression
+    .sort((a, b) => a.name.localeCompare(b.name));
+  }, [exercises, workouts, dataService]);
+
+  // Default select first exercise that has evolution if possible
+  useEffect(() => {
+    if (exercisesWithHistory.length > 0) {
+      if (!selectedExerciseId || !exercisesWithHistory.find(e => e.id === selectedExerciseId)) {
+        setSelectedExerciseId(exercisesWithHistory[0].id);
+      }
+    } else {
+      setSelectedExerciseId("");
     }
-  }, [exercises, workouts, selectedExerciseId]);
+  }, [exercisesWithHistory, selectedExerciseId]);
 
   // Compute stats for selected exercise
   const exerciseStats = useMemo(() => {
     if (!selectedExerciseId) return null;
     return dataService.getExerciseHistory(workouts, selectedExerciseId);
   }, [workouts, selectedExerciseId, dataService]);
-
-  // Exercise selection dropdown items (only exercises with at least one logged completion)
-  const exercisesWithHistory = useMemo(() => {
-    return exercises.map(ex => {
-      const history = dataService.getExerciseHistory(workouts, ex.id);
-      return {
-        ...ex,
-        hasHistory: history.history.length > 0,
-        lastWeight: history.lastWeight,
-        maxWeight: history.maxWeight
-      };
-    }).sort((a, b) => (b.hasHistory ? 1 : 0) - (a.hasHistory ? 1 : 0));
-  }, [exercises, workouts, dataService]);
 
   // Muscle group training frequency count
   const muscleGroupDistributionData = useMemo(() => {
@@ -188,11 +223,15 @@ export default function StatsView({
               onChange={(e) => setSelectedExerciseId(e.target.value)}
               className="rounded-none border border-gym-border bg-gym-dark px-3 py-1.5 text-xs font-black text-white focus:border-neon-lime focus:outline-none cursor-pointer uppercase font-mono"
             >
-              {exercisesWithHistory.map(ex => (
+              {exercisesWithHistory.length > 0 ? exercisesWithHistory.map(ex => (
                 <option key={ex.id} value={ex.id} className="bg-gym-card text-white uppercase font-bold text-xs">
-                  {ex.name} {ex.hasHistory ? "✓" : "(Sin entrenamientos)"}
+                  {ex.name} (EVOLUCIÓN)
                 </option>
-              ))}
+              )) : (
+                <option value="" className="bg-gym-card text-slate-500 uppercase font-bold text-xs" disabled>
+                  Sin ejercicios con progreso
+                </option>
+              )}
             </select>
           </div>
         </div>

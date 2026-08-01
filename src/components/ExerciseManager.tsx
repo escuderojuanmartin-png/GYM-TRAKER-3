@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Plus, Trash2, Dumbbell, Layers } from "lucide-react";
+import { Plus, Trash2, Dumbbell, Layers, Edit2, Check, X } from "lucide-react";
 import { Exercise, MuscleGroup } from "../types";
 
 interface ExerciseManagerProps {
   exercises: Exercise[];
   muscleGroups: MuscleGroup[];
   onAddExercise: (name: string, muscleGroupId: string) => void;
+  onEditExercise: (id: string, name: string) => void;
   onDeleteExercise: (id: string) => void;
   onAddMuscleGroup: (name: string) => void;
 }
@@ -14,6 +15,7 @@ export default function ExerciseManager({
   exercises,
   muscleGroups,
   onAddExercise,
+  onEditExercise,
   onDeleteExercise,
   onAddMuscleGroup
 }: ExerciseManagerProps) {
@@ -22,6 +24,15 @@ export default function ExerciseManager({
   const [newGroupName, setNewGroupName] = useState("");
   const [addingExerciseToGroup, setAddingExerciseToGroup] = useState<string | null>(null);
   const [newExerciseName, setNewExerciseName] = useState("");
+  const [editingExercise, setEditingExercise] = useState<{id: string, name: string} | null>(null);
+
+  const handleEditExerciseSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingExercise && editingExercise.name.trim()) {
+      onEditExercise(editingExercise.id, editingExercise.name.trim());
+      setEditingExercise(null);
+    }
+  };
 
   const handleAddGroupSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,17 +115,55 @@ export default function ExerciseManager({
                   const isCustom = ex.userId !== null;
                   return (
                     <div key={ex.id} className="flex items-center justify-between py-1.5 px-2 hover:bg-gym-card-light transition-colors group">
-                      <span className="text-sm font-black text-white">{ex.name}</span>
-                      {isCustom ? (
-                        <button
-                          onClick={() => onDeleteExercise(ex.id)}
-                          className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-red-400 transition-all cursor-pointer"
-                          title="Eliminar ejercicio personalizado"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
+                      {editingExercise?.id === ex.id ? (
+                        <form onSubmit={handleEditExerciseSubmit} className="flex flex-1 items-center gap-2 mr-2">
+                          <input
+                            type="text"
+                            value={editingExercise.name}
+                            onChange={(e) => setEditingExercise({ ...editingExercise, name: e.target.value })}
+                            className="flex-1 rounded-none border border-gym-border-light bg-gym-dark px-2 py-1 text-xs font-bold text-white focus:border-neon-lime focus:outline-none"
+                            autoFocus
+                          />
+                          <button
+                            type="submit"
+                            className="p-1 text-neon-lime hover:bg-neon-lime/10 transition-colors"
+                            title="Guardar"
+                          >
+                            <Check className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingExercise(null)}
+                            className="p-1 text-slate-500 hover:text-white transition-colors"
+                            title="Cancelar"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </form>
                       ) : (
-                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-600">Base</span>
+                        <>
+                          <span className="text-sm font-black text-white">{ex.name}</span>
+                          {isCustom ? (
+                            <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-all">
+                              <button
+                                onClick={() => setEditingExercise({ id: ex.id, name: ex.name })}
+                                className="p-1 text-slate-500 hover:text-white cursor-pointer"
+                                title="Editar ejercicio personalizado"
+                              >
+                                <Edit2 className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={() => onDeleteExercise(ex.id)}
+                                className="p-1 text-slate-500 hover:text-red-400 cursor-pointer"
+                                title="Eliminar ejercicio personalizado"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-600">Base</span>
+                          )}
+                        </>
                       )}
                     </div>
                   );

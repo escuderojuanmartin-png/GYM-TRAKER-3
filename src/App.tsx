@@ -302,6 +302,15 @@ export default function App() {
     }
   };
 
+  const handleEditExercise = async (id: string, name: string) => {
+    try {
+      await dataService.updateExercise(id, name);
+      await loadAllUserData();
+    } catch (e) {
+      console.error("Error updating exercise:", e);
+    }
+  };
+
   const handleAddMuscleGroup = async (name: string) => {
     try {
       await dataService.addMuscleGroup(name);
@@ -489,6 +498,7 @@ export default function App() {
                   exercises={exercises}
                   muscleGroups={muscleGroups}
                   onAddExercise={handleAddExercise}
+                  onEditExercise={handleEditExercise}
                   onDeleteExercise={handleDeleteExercise}
                   onAddMuscleGroup={handleAddMuscleGroup}
                 />
