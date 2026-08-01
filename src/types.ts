@@ -2,9 +2,10 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
-  avatar: string;
+  role: 'STUDENT' | 'TEACHER';
+  teacherId: string | null; // For students, the ID of their teacher
+  avatar: string | null;
   createdAt: string;
-  lastLogin: string;
 }
 
 export interface MuscleGroup {
@@ -73,6 +74,7 @@ export interface Routine {
   name: string;
   exerciseIds: string[];
   muscleGroupIds: string[];
+  assignedBy?: string; // ID of the teacher if assigned
 }
 
 export interface Settings {

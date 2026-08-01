@@ -1,5 +1,5 @@
 import { db, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy } from "../firebase";
-import { MuscleGroup, Exercise, Workout, Routine, ExerciseHistoryStat, WorkoutSet } from "../types";
+import { MuscleGroup, Exercise, Workout, Routine, ExerciseHistoryStat, WorkoutSet, UserProfile } from "../types";
 import { DEFAULT_MUSCLE_GROUPS, DEFAULT_EXERCISES } from "../defaultData";
 
 // LocalStorage Keys for Guest Mode
@@ -19,6 +19,44 @@ export class DataService {
   // Set the current user ID
   setUserId(userId: string | null) {
     this.userId = userId;
+  }
+
+  // --- USER PROFILE ---
+  async getUserProfile(uid: string): Promise<UserProfile | null> {
+    try {
+      const docSnap = await getDoc(doc(db, "users", uid));
+      if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() } as UserProfile;
+      }
+    } catch (e) {
+      console.error("Error fetching user profile:", e);
+    }
+    return null;
+  }
+
+  async createUserProfile(profile: UserProfile): Promise<void> {
+    try {
+      await setDoc(doc(db, "users", profile.id), profile);
+    } catch (e) {
+      console.error("Error creating user profile:", e);
+      throw e;
+    }
+  }
+
+  async getStudentsForTeacher(): Promise<UserProfile[]> {
+    if (!this.userId) return [];
+    try {
+      const q = query(collection(db, "users"), where("teacherId", "==", this.userId));
+      const querySnapshot = await getDocs(q);
+      const students: UserProfile[] = [];
+      querySnapshot.forEach(docSnap => {
+        students.push({ id: docSnap.id, ...docSnap.data() } as UserProfile);
+      });
+      return students;
+    } catch (e) {
+      console.error("Error fetching students:", e);
+      return [];
+    }
   }
 
   // --- MUSCLE GROUPS ---
@@ -241,6 +279,32 @@ export class DataService {
     } catch (e) {
       console.error("Error saving routine to Firestore:", e);
       return newRoutine;
+    }
+  }
+
+  async assignRoutineToStudent(studentId: string, name: string, exerciseIds: string[], muscleGroupIds: string[]): Promise<Routine> {
+    const id = "routine_" + Date.now();
+    const newRoutine: Routine = {
+      id,
+      userId: studentId,
+      name,
+      exerciseIds,
+      muscleGroupIds,
+      assignedBy: this.userId || undefined
+    };
+
+    try {
+      await setDoc(doc(db, "routines", id), {
+        userId: studentId,
+        name,
+        exerciseIds,
+        muscleGroupIds,
+        assignedBy: this.userId
+      });
+      return newRoutine;
+    } catch (e) {
+      console.error("Error saving assigned routine to Firestore:", e);
+      throw e;
     }
   }
 

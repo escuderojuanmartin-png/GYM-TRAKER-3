@@ -10,7 +10,7 @@ import {
 } from "./firebase";
 import type { User } from "firebase/auth";
 import { DataService } from "./services/dataService";
-import { Workout, MuscleGroup, Exercise, Routine } from "./types";
+import { Workout, MuscleGroup, Exercise, Routine, UserProfile } from "./types";
 
 // Subcomponents
 import Navbar from "./components/Navbar";
@@ -37,6 +37,8 @@ import {
 } from "lucide-react";
 
 import LoginScreen from "./components/LoginScreen";
+import RoleSelection from "./components/RoleSelection";
+import TeacherDashboard from "./components/TeacherDashboard";
 
 export default function App() {
   // Authentication & Service States
@@ -44,6 +46,7 @@ export default function App() {
   const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
   const [hasLocalData, setHasLocalData] = useState<boolean>(false);
   const [proceedOffline, setProceedOffline] = useState<boolean>(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   // Instantiated Database Service
   const dataService = useMemo(() => {
@@ -89,6 +92,11 @@ export default function App() {
   const loadAllUserData = async () => {
     setLoadingData(true);
     try {
+      if (user) {
+        const profile = await dataService.getUserProfile(user.uid);
+        setUserProfile(profile);
+      }
+
       const [mGroups, exs, rts, wks, goal] = await Promise.all([
         dataService.getMuscleGroups(),
         dataService.getExercises(),
@@ -213,6 +221,7 @@ export default function App() {
         await signOut(auth);
         setCurrentTab("dashboard");
         setProceedOffline(false);
+        setUserProfile(null);
       } catch (e) {
         console.error("Logout failed:", e);
       }
@@ -373,22 +382,50 @@ export default function App() {
     { id: "stats", label: "Estadísticas", icon: TrendingUp }
   ];
 
-  if (loadingAuth) {
+  if (loadingAuth || (user && loadingData && !userProfile)) {
     return (
-      <div className="min-h-screen bg-gym-dark flex flex-col items-center justify-center p-4">
-        <div className="h-10 w-10 animate-spin-slow rounded-none border-4 border-neon-lime border-t-transparent shadow-lg" />
+      <div className="flex min-h-screen items-center justify-center bg-gym-dark text-white">
+        <div className="flex flex-col items-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-neon-lime border-t-transparent mb-4"></div>
+          <p className="text-xs font-black uppercase tracking-widest text-slate-400">Iniciando GYM_TRACKER</p>
+        </div>
       </div>
     );
   }
 
+  // Not authenticated
   if (!user && !proceedOffline) {
     return (
       <LoginScreen 
-        onLogin={handleLogin} 
+        onLogin={handleLogin}
         onEmailLogin={handleEmailLogin}
         onEmailSignUp={handleEmailSignUp}
-        loadingAuth={loadingAuth} 
-        onContinueOffline={() => setProceedOffline(true)} 
+        loadingAuth={loadingAuth}
+        onContinueOffline={() => setProceedOffline(true)}
+      />
+    );
+  }
+
+  // Needs Role Selection
+  if (user && !userProfile && !loadingData) {
+    return (
+      <RoleSelection 
+        user={user} 
+        dataService={dataService} 
+        onProfileCreated={(profile) => setUserProfile(profile)} 
+      />
+    );
+  }
+
+  // Teacher Dashboard
+  if (userProfile?.role === 'TEACHER') {
+    return (
+      <TeacherDashboard 
+        userProfile={userProfile}
+        dataService={dataService}
+        onLogout={handleLogout}
+        exercises={exercises}
+        muscleGroups={muscleGroups}
       />
     );
   }
