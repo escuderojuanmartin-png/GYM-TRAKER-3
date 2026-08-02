@@ -33,12 +33,14 @@ import {
   Calendar, 
   Clock, 
   Award,
-  BookOpen
+  BookOpen,
+  User
 } from "lucide-react";
 
 import LoginScreen from "./components/LoginScreen";
 import RoleSelection from "./components/RoleSelection";
 import TeacherDashboard from "./components/TeacherDashboard";
+import ProfileSettings from "./components/ProfileSettings";
 
 export default function App() {
   // Authentication & Service States
@@ -375,11 +377,12 @@ export default function App() {
 
   // Navigation tab schema
   const navTabs = [
-    { id: "dashboard", label: "Dashboard", icon: Home },
-    { id: "routines", label: "Rutinas", icon: Dumbbell },
+    { id: "dashboard", label: "Inicio", icon: Home },
+    { id: "routines", label: "Rutinas", icon: Sparkles },
     { id: "exercises", label: "Ejercicios", icon: Layers },
     { id: "history", label: "Historial", icon: History },
-    { id: "stats", label: "Estadísticas", icon: TrendingUp }
+    { id: "stats", label: "Estadísticas", icon: TrendingUp },
+    { id: "profile", label: "Perfil", icon: User }
   ];
 
   if (loadingAuth || (user && loadingData && !userProfile)) {
@@ -419,6 +422,18 @@ export default function App() {
 
   // Teacher Dashboard
   if (userProfile?.role === 'TEACHER') {
+    const handleResetRole = async () => {
+      if (confirm("¿Estás seguro de que quieres restablecer tu rol? Tendrás que elegir de nuevo al entrar.")) {
+        try {
+          const { deleteDoc, doc, db } = await import("./firebase");
+          await deleteDoc(doc(db, "users", userProfile.id));
+          setUserProfile(null);
+        } catch (e) {
+          console.error("Error al restablecer rol:", e);
+        }
+      }
+    };
+
     return (
       <TeacherDashboard 
         userProfile={userProfile}
@@ -426,6 +441,7 @@ export default function App() {
         onLogout={handleLogout}
         exercises={exercises}
         muscleGroups={muscleGroups}
+        onResetRole={handleResetRole}
       />
     );
   }
@@ -550,11 +566,18 @@ export default function App() {
               )}
 
               {currentTab === "stats" && (
-                <StatsView
-                  workouts={workouts}
+                <StatsView 
+                  workouts={workouts} 
+                  exercises={exercises} 
                   muscleGroups={muscleGroups}
-                  exercises={exercises}
                   dataService={dataService}
+                />
+              )}
+              {currentTab === "profile" && (
+                <ProfileSettings
+                  userProfile={userProfile}
+                  dataService={dataService}
+                  onProfileUpdated={(updated) => setUserProfile(updated)}
                 />
               )}
             </div>

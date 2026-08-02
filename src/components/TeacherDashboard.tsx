@@ -10,9 +10,10 @@ interface TeacherDashboardProps {
   onLogout: () => void;
   exercises: Exercise[];
   muscleGroups: MuscleGroup[];
+  onResetRole?: () => void;
 }
 
-export default function TeacherDashboard({ userProfile, dataService, onLogout, exercises, muscleGroups }: TeacherDashboardProps) {
+export default function TeacherDashboard({ userProfile, dataService, onLogout, exercises, muscleGroups, onResetRole }: TeacherDashboardProps) {
   const [students, setStudents] = useState<UserProfile[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -92,7 +93,15 @@ export default function TeacherDashboard({ userProfile, dataService, onLogout, e
           )}
         </div>
 
-        <div className="p-4 border-t border-gym-border">
+        <div className="p-4 border-t border-gym-border space-y-2">
+          {onResetRole && (
+            <button
+              onClick={onResetRole}
+              className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-amber-500 hover:bg-amber-500/10 transition-colors uppercase tracking-wider"
+            >
+              Cambiar Rol
+            </button>
+          )}
           <button
             onClick={onLogout}
             className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-red-500 hover:bg-red-500/10 transition-colors uppercase tracking-wider"
