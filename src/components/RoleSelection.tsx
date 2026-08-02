@@ -32,16 +32,17 @@ export default function RoleSelection({ user, dataService, onProfileCreated }: R
       name: user.displayName || user.email?.split("@")[0] || "Usuario",
       email: user.email || "",
       role,
-      teacherId,
-      avatar: user.photoURL,
+      teacherId: teacherId || null,
+      avatar: user.photoURL || null,
       createdAt: new Date().toISOString()
     };
 
     try {
       await dataService.createUserProfile(newProfile);
       onProfileCreated(newProfile);
-    } catch (e) {
-      alert("Error al crear el perfil.");
+    } catch (e: any) {
+      console.error(e);
+      alert("Error al crear el perfil: " + (e.message || "Error desconocido"));
     } finally {
       setLoading(false);
     }
