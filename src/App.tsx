@@ -34,7 +34,8 @@ import {
   Clock, 
   Award,
   BookOpen,
-  User
+  User as UserIcon,
+  Users
 } from "lucide-react";
 
 import LoginScreen from "./components/LoginScreen";
@@ -387,14 +388,14 @@ export default function App() {
     { id: "students", label: "Alumnos", icon: Users },
     { id: "routines", label: "Plantillas", icon: Sparkles },
     { id: "exercises", label: "Mis Ejercicios", icon: Layers },
-    { id: "profile", label: "Perfil", icon: User }
+    { id: "profile", label: "Perfil", icon: UserIcon }
   ] : [
     { id: "dashboard", label: "Inicio", icon: Home },
     { id: "routines", label: "Rutinas", icon: Sparkles },
     { id: "exercises", label: "Ejercicios", icon: Layers },
     { id: "history", label: "Historial", icon: History },
     { id: "stats", label: "Estadísticas", icon: TrendingUp },
-    { id: "profile", label: "Perfil", icon: User }
+    { id: "profile", label: "Perfil", icon: UserIcon }
   ];
 
   if (loadingAuth || (user && loadingData && !userProfile)) {
