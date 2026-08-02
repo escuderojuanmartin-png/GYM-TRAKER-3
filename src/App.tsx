@@ -76,7 +76,7 @@ export default function App() {
     if (userProfile?.role === 'TEACHER' && currentTab === 'dashboard') {
       setCurrentTab('students');
     }
-  }, [userProfile]);
+  }, [userProfile, currentTab]);
 
   // Check for drafted session on mount
   useEffect(() => {

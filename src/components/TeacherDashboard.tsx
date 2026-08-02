@@ -130,9 +130,9 @@ export default function TeacherDashboard({ userProfile, dataService, exercises, 
               >
                 <div className="h-8 w-8 rounded-none bg-gym-card-light flex items-center justify-center border border-gym-border shrink-0 overflow-hidden">
                   {student.avatar ? (
-                    <img src={student.avatar} alt={student.name} className="h-full w-full object-cover" />
+                    <img src={student.avatar} alt={student.name || 'Alumno'} className="h-full w-full object-cover" />
                   ) : (
-                    <span className="font-black text-[10px]">{student.name.charAt(0)}</span>
+                    <span className="font-black text-[10px]">{student.name?.charAt(0) || 'A'}</span>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
