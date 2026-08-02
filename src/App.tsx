@@ -71,6 +71,13 @@ export default function App() {
   const [selectedWorkoutToView, setSelectedWorkoutToView] = useState<Workout | null>(null);
   const [workoutSavedToast, setWorkoutSavedToast] = useState<boolean>(false);
 
+  // Default tab based on role
+  useEffect(() => {
+    if (userProfile?.role === 'TEACHER' && currentTab === 'dashboard') {
+      setCurrentTab('students');
+    }
+  }, [userProfile]);
+
   // Check for drafted session on mount
   useEffect(() => {
     const draft = localStorage.getItem("gym_tracker_active_session");
@@ -376,7 +383,12 @@ export default function App() {
   };
 
   // Navigation tab schema
-  const navTabs = [
+  const navTabs = userProfile?.role === 'TEACHER' ? [
+    { id: "students", label: "Alumnos", icon: Users },
+    { id: "routines", label: "Plantillas", icon: Sparkles },
+    { id: "exercises", label: "Mis Ejercicios", icon: Layers },
+    { id: "profile", label: "Perfil", icon: User }
+  ] : [
     { id: "dashboard", label: "Inicio", icon: Home },
     { id: "routines", label: "Rutinas", icon: Sparkles },
     { id: "exercises", label: "Ejercicios", icon: Layers },
@@ -420,31 +432,18 @@ export default function App() {
     );
   }
 
-  // Teacher Dashboard
-  if (userProfile?.role === 'TEACHER') {
-    const handleResetRole = async () => {
-      if (confirm("¿Estás seguro de que quieres restablecer tu rol? Tendrás que elegir de nuevo al entrar.")) {
-        try {
-          const { deleteDoc, doc, db } = await import("./firebase");
-          await deleteDoc(doc(db, "users", userProfile.id));
-          setUserProfile(null);
-        } catch (e) {
-          console.error("Error al restablecer rol:", e);
-        }
+  // Role reset function
+  const handleResetRole = async () => {
+    if (confirm("¿Estás seguro de que quieres restablecer tu rol? Tendrás que elegir de nuevo al entrar.")) {
+      try {
+        const { deleteDoc, doc, db } = await import("./firebase");
+        await deleteDoc(doc(db, "users", userProfile.id));
+        setUserProfile(null);
+      } catch (e) {
+        console.error("Error al restablecer rol:", e);
       }
-    };
-
-    return (
-      <TeacherDashboard 
-        userProfile={userProfile}
-        dataService={dataService}
-        onLogout={handleLogout}
-        exercises={exercises}
-        muscleGroups={muscleGroups}
-        onResetRole={handleResetRole}
-      />
-    );
-  }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gym-dark font-sans text-white flex flex-col antialiased">
@@ -520,7 +519,17 @@ export default function App() {
           ) : (
             /* Switch content between general tabs */
             <div className="pb-16 md:pb-0">
-              {currentTab === "dashboard" && (
+              {currentTab === "students" && userProfile?.role === 'TEACHER' && (
+                <TeacherDashboard 
+                  userProfile={userProfile}
+                  dataService={dataService}
+                  exercises={exercises}
+                  muscleGroups={muscleGroups}
+                  teacherRoutines={routines}
+                />
+              )}
+
+              {currentTab === "dashboard" && userProfile?.role !== 'TEACHER' && (
                 <Dashboard
                   workouts={workouts}
                   muscleGroups={muscleGroups}

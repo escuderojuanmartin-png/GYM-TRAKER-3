@@ -12,6 +12,11 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(studentUid)).data.teacherId == request.auth.uid;
     }
 
+    function isStudentOf(teacherUid) {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teacherId == teacherUid;
+    }
+
     function isOwnerOrTeacher(userId) {
       return request.auth.uid == userId || isTeacherFor(userId);
     }
@@ -26,11 +31,15 @@ service cloud.firestore {
       allow create: if isSignedIn() && isOwnerOrTeacher(request.resource.data.userId);
     }
     match /exercises/{exerciseId} {
-      allow read, update, delete: if isSignedIn() && isOwnerOrTeacher(resource.data.userId);
+      // Students can read exercises owned by their teacher
+      allow read: if isSignedIn() && (isOwnerOrTeacher(resource.data.userId) || isStudentOf(resource.data.userId) || resource.data.userId == null);
+      allow update, delete: if isSignedIn() && isOwnerOrTeacher(resource.data.userId);
       allow create: if isSignedIn() && isOwnerOrTeacher(request.resource.data.userId);
     }
     match /routines/{routineId} {
-      allow read, update, delete: if isSignedIn() && isOwnerOrTeacher(resource.data.userId);
+      // Students can read routines owned by their teacher (templates)
+      allow read: if isSignedIn() && (isOwnerOrTeacher(resource.data.userId) || isStudentOf(resource.data.userId));
+      allow update, delete: if isSignedIn() && isOwnerOrTeacher(resource.data.userId);
       allow create: if isSignedIn() && isOwnerOrTeacher(request.resource.data.userId);
     }
     match /workouts/{workoutId} {
